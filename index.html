@@ -42,12 +42,13 @@ button{font:inherit;color:inherit;cursor:pointer}
 
 <div id="start" class="card">
   <p>20 multiple-choice questions: 10 quick multiplication problems, then 10 electrical and computer engineering questions.</p>
-  <p>You have <b>5 minutes</b> total. Unanswered questions count as wrong. Your score becomes your <b>Knowledge</b> trait (1–8).</p>
+  <p>You have <b>3 minutes</b> total. Unanswered questions count as wrong.</p>
+  <p>Your <b>Knowledge</b> trait is graded ruthlessly. Accuracy sets your starting score: 20/20 is an 8, one wrong is a 6, and every further mistake drops you lower. Then the clock bites: you get a 30-second grace period, and after that you lose 1 point for every 15 seconds (minimum trait of 1).</p>
   <button class="go" id="startBtn">Enter the house</button>
 </div>
 
 <div id="quiz" class="card hide">
-  <div class="bar"><span id="count"></span><span class="timer" id="timer">5:00</span></div>
+  <div class="bar"><span id="count"></span><span class="timer" id="timer">3:00</span></div>
   <div class="prog"><i id="prog"></i></div>
   <span class="tag" id="tag"></span>
   <h2 class="q" id="q"></h2>
@@ -65,7 +66,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 
 <script>
 (function(){
-var TOTAL_SECONDS = 300;
+var TOTAL_SECONDS = 180;
 var EE = [
   ["A 12 V source is connected across a 4 Ω resistor. What is the current?","3 A",["48 A","8 A","0.33 A"]],
   ["Two 10 Ω resistors are wired in series. What is the total resistance?","20 Ω",["5 Ω","10 Ω","100 Ω"]],
@@ -130,10 +131,16 @@ function finish(){
     var ok=answers[i]===q.answer;if(ok)score++;
     if(!ok){rev+='<div><span class="bad">✗</span> '+esc(q.text)+' — answer: <b>'+esc(q.answer)+'</b>'+(answers[i]?' (you said '+esc(answers[i])+')':' (unanswered)')+'</div>';}
   });
-  var trait=Math.max(1,Math.min(8,Math.ceil(score/20*8)));
   var used=TOTAL_SECONDS-Math.max(remaining,0);
+  var wrong=20-score,base;
+  if(wrong===0)base=8;
+  else if(wrong<=4)base=7-wrong;
+  else if(wrong<=6)base=2;
+  else base=1;
+  var penalty=used>30?Math.ceil((used-30)/15):0;
+  var trait=Math.max(1,base-penalty);
   $("trait").textContent=trait+" / 8";
-  $("summary").textContent=score+" of 20 correct in "+fmt(used)+(remaining<=0?" (time ran out).":".");
+  $("summary").textContent=score+" of 20 correct in "+fmt(used)+(remaining<=0?" (time ran out).":".")+(penalty?" Time penalty: −"+penalty+".":"");
   $("rev").innerHTML=rev?("<b>Missed:</b>"+rev):'<span class="ok">Flawless. The house trembles.</span>';
   show("result");
 }
