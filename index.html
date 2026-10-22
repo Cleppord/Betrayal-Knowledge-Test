@@ -137,7 +137,7 @@ function finish(){
   else if(wrong<=4)base=7-wrong;
   else if(wrong<=6)base=2;
   else base=1;
-  var penalty=used>30?Math.ceil((used-30)/15):0;
+  var penalty=used>30?Math.ceil((used-30)/25):0;
   var trait=Math.max(1,base-penalty);
   $("trait").textContent=trait+" / 8";
   $("summary").textContent=score+" of 20 correct in "+fmt(used)+(remaining<=0?" (time ran out).":".")+(penalty?" Time penalty: −"+penalty+".":"");
